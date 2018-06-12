@@ -2,6 +2,7 @@ import bottle as b
 import json
 import feedparser
 import random
+from datetime import datetime
 
 
 @b.get('/js/<filename:re:.*\.js>')
@@ -30,7 +31,9 @@ def retrieve_news():
         article["title"] = feed["entries"][i]["title"]
         article["link"] = feed["entries"][i]["links"][0]["href"]
         articles.append(article)
-    return json.dumps(articles)
+    last_time = b.request.get_cookie("invoked_at", str(datetime.now()))
+    b.response.set_cookie("invoked_at", str(datetime.now()), max_age=30)
+    return json.dumps([articles, last_time])
 
 @b.get("/")
 def serve_html():
